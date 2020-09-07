@@ -3,7 +3,7 @@ from scipy.linalg import eigh
 import scipy.constants as const 
 import matplotlib.pyplot as plt
 
-N = 11
+N = 500
 L = 5e-9
 h = L/(N-1)
 
@@ -21,8 +21,8 @@ print(4*np.pi**2*const.hbar**2/(2.*0.19*const.m_e*L**2))
 x = np.linspace(0,L,N)
 fig = plt.figure(figsize=(10,10))
 plt.plot(x,V[:,0]*np.sqrt(N-1),'ro',lw=0.5,ms=5,mfc='None',label='$E_1=$'+str(format(E[0],'8.6e'))+'J')
-plt.plot(x,-V[:,1]*np.sqrt(N-1),'bs',lw=0.5,ms=5,mfc='None',label='$E_2=$'+str(format(E[1],'8.6e'))+'J')
-plt.plot(x,-V[:,2]*np.sqrt(N-1),'g^',lw=0.5,ms=5,mfc='None',label='$E_3=$'+str(format(E[2],'8.6e'))+'J')
+plt.plot(x,V[:,1]*np.sqrt(N-1),'bs',lw=0.5,ms=5,mfc='None',label='$E_2=$'+str(format(E[1],'8.6e'))+'J')
+plt.plot(x,V[:,2]*np.sqrt(N-1),'g^',lw=0.5,ms=5,mfc='None',label='$E_3=$'+str(format(E[2],'8.6e'))+'J')
 
 xe = np.linspace(0,L,1000)
 plt.plot(xe,np.sin(np.pi*xe/L)*np.sqrt(2),'r-.',lw=0.5,label='$E_1^{ext.}$')

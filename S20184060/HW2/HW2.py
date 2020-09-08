@@ -16,13 +16,19 @@ E,V = eigh(-H/h**2*const.hbar**2/(2.*0.19*const.m_e))
 v0 = np.zeros((1,N-2))
 V = np.concatenate((v0,V),axis=0)
 V = np.concatenate((V,v0),axis=0)
-print(4*np.pi**2*const.hbar**2/(2.*0.19*const.m_e*L**2))
+
+n = np.arange(1,4)
+E_ext = n**2*np.pi**2*const.hbar**2/(2.*0.19*const.m_e*L**2)
+
+for i in range(3):
+    print("Numertical "+str(i+1)+"th E : "+str(format(E[i],'8.6e')))
+    print("Exact "+str(i+1)+"th E : "+str(format(E_ext[i],'8.6e'))+"\n")
 
 x = np.linspace(0,L,N)
 fig = plt.figure(figsize=(10,10))
 plt.plot(x,V[:,0]*np.sqrt(N-1),'ro',lw=0.5,ms=5,mfc='None',label='$E_1=$'+str(format(E[0],'8.6e'))+'J')
-plt.plot(x,V[:,1]*np.sqrt(N-1),'bs',lw=0.5,ms=5,mfc='None',label='$E_2=$'+str(format(E[1],'8.6e'))+'J')
-plt.plot(x,V[:,2]*np.sqrt(N-1),'g^',lw=0.5,ms=5,mfc='None',label='$E_3=$'+str(format(E[2],'8.6e'))+'J')
+plt.plot(x,-V[:,1]*np.sqrt(N-1),'bs',lw=0.5,ms=5,mfc='None',label='$E_2=$'+str(format(E[1],'8.6e'))+'J')
+plt.plot(x,-V[:,2]*np.sqrt(N-1),'g^',lw=0.5,ms=5,mfc='None',label='$E_3=$'+str(format(E[2],'8.6e'))+'J')
 
 xe = np.linspace(0,L,1000)
 plt.plot(xe,np.sin(np.pi*xe/L)*np.sqrt(2),'r-.',lw=0.5,label='$E_1^{ext.}$')

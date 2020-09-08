@@ -1,1 +1,1 @@
-S20184002 In Ki Kim
+S20184002 In ki Kim

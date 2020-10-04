@@ -45,7 +45,7 @@ def make_b(Vg,phi=np.zeros(N)):
     b[M1] = const.e*Nacc*h**2/2.
     b[M2] = const.e*Nacc*h**2/2.
 
-    b += 2.*const.e*ni*np.cosh(const.e*phi/(const.k*300.))*h**2
+    b += 2.*const.e*ni*np.sinh(const.e*phi/(const.k*300.))*h**2
     b[0] = phi0+Vg; b[N-1] = phi0+Vg
 
     return b

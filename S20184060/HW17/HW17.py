@@ -74,7 +74,7 @@ class Drift_Diffusion_2D:
         self.n = copy.deepcopy(n)
 
         Cvec = np.zeros(2*N)
-        Cvec[0::2] = Vt; Cvec[1::2] = Np
+        Cvec[0::2] = Vt; Cvec[1::2] = np.abs(Np)
         self.Cmat = np.diag(Cvec)
 
     def Jn(self,ind1,ind2):
@@ -314,17 +314,24 @@ class Drift_Diffusion_2D:
                 else :
                     self.Rp[i] = e2*(-4.*self.phi[i]+self.phi[i-1]+self.phi[i+1]+self.phi[i-Nx]+self.phi[i+Nx]) - h*h*const.e*self.n[i]/const.epsilon_0
 
-                self.Rn[i] = self.Jn(i+Nx,i)+self.Jn(i+1,i)-self.Jn(i,i-Nx)-self.Jn(i,i-1)
+                self.Rn[i] = self.Jn(i+1,i)-self.Jn(i,i-1)
+                #self.Rn[i] = self.Jn(i+Nx,i)+self.Jn(i+1,i)-self.Jn(i,i-Nx)-self.Jn(i,i-1)
 
                 self.dpRp[i,i] = -4.*e2; self.dpRp[i,i-Nx] = e2; self.dpRp[i,i+Nx] = e2; self.dpRp[i,i-1] = e2; self.dpRp[i,i+1] = e2
                 self.dnRp[i,i] = -h*h*const.e/const.epsilon_0;
 
-                self.dpRn[i,i] = self.dpJn(i+Nx,i,'-')+self.dpJn(i+1,i,'-')-self.dpJn(i,i-1,'+')-self.dpJn(i,i-Nx,'+')
-                self.dpRn[i,i+Nx] = self.dpJn(i+Nx,i,'+'); self.dpRn[i,i+1] = self.dpJn(i+1,i,'+'); self.dpRn[i,i-1] = -self.dpJn(i,i-1,'-'); self.dpRn[i,i-Nx] = -self.dpJn(i,i-Nx,'-')
+                self.dpRn[i,i] = self.dpJn(i+1,i,'-')-self.dpJn(i,i-1,'+')
+                self.dpRn[i,i+1] = self.dpJn(i+1,i,'+'); self.dpRn[i,i-1] = -self.dpJn(i,i-1,'-')
 
-                self.dnRn[i,i] = self.dnJn(i+Nx,i,'-')+self.dnJn(i+1,i,'-')-self.dnJn(i,i-1,'+')-self.dnJn(i,i-Nx,'+')
-                self.dnRn[i,i+Nx] = self.dnJn(i+Nx,i,'+'); self.dnRn[i,i+1] = self.dnJn(i+1,i,'+'); self.dnRn[i,i-1] = -self.dnJn(i,i-1,'-'); self.dnRn[i,i-Nx] = -self.dnJn(i,i-Nx,'-')
+                self.dnRn[i,i] = self.dnJn(i+1,i,'-')-self.dnJn(i,i-1,'+')
+                self.dnRn[i,i+1] = self.dnJn(i+1,i,'+'); self.dnRn[i,i-1] = -self.dnJn(i,i-1,'-')
 
+                #self.dpRn[i,i] = self.dpJn(i+Nx,i,'-')+self.dpJn(i+1,i,'-')-self.dpJn(i,i-1,'+')-self.dpJn(i,i-Nx,'+')
+                #self.dpRn[i,i+Nx] = self.dpJn(i+Nx,i,'+'); self.dpRn[i,i+1] = self.dpJn(i+1,i,'+'); self.dpRn[i,i-1] = -self.dpJn(i,i-1,'-'); self.dpRn[i,i-Nx] = -self.dpJn(i,i-Nx,'-')
+
+                #self.dnRn[i,i] = self.dnJn(i+Nx,i,'-')+self.dnJn(i+1,i,'-')-self.dnJn(i,i-1,'+')-self.dnJn(i,i-Nx,'+')
+                #self.dnRn[i,i+Nx] = self.dnJn(i+Nx,i,'+'); self.dnRn[i,i+1] = self.dnJn(i+1,i,'+'); self.dnRn[i,i-1] = -self.dnJn(i,i-1,'-'); self.dnRn[i,i-Nx] = -self.dnJn(i,i-Nx,'-')
+                
 	#####################
 	## Top Oxide Layer ##
 	#####################
@@ -360,7 +367,7 @@ class Drift_Diffusion_2D:
 
             elif iy==My2 and not(ix==0 or ix==Nx-1) :
                 self.Rp[i] = -2.*(e1+e2)*self.phi[i]+(e1+e2)/2.*self.phi[i-1]+(e1+e2)/2.*self.phi[i+1]+e2*self.phi[i-Nx]+e1*self.phi[i+Nx]
-		self.Rn[i] = self.n[i]
+                self.Rn[i] = self.n[i]
                 #self.Rn[i] = self.Jn(i+Nx,i)+self.Jn(i+1,i)-self.Jn(i,i-Nx)-self.Jn(i,i-1)
 
                 self.dpRp[i,i] = -2.*(e1+e2); self.dpRp[i,i-Nx] = e2; self.dpRp[i,i+Nx] = e1; self.dpRp[i,i-1] = 0.5*(e1+e2); self.dpRp[i,i+1] = 0.5*(e1+e2)
@@ -416,16 +423,14 @@ class Drift_Diffusion_2D:
    
     def make_Current(self):
         Crnt1 = np.zeros((Ny,Nx))
-        Crnt2 = np.zeros((Ny,Nx))
 
 	for i in range(N):
 	    ix = i%Nx
 	    iy = i/Nx
 	    if not(ix==0 or ix==Nx-1) and not(iy==0 or iy==Ny-1):
-	        Crnt1[iy,ix] = const.e*Dn*self.Jn(i,i-1)*h
-		#Crnt2[iy,ix] = const.e*Dn*self.Jn(i,i-Ny)*h
+	        Crnt1[iy,ix] = const.e*Dn*self.Jn(i,i-1)*1e-12/h
 
-        return Crnt1,Crnt2
+        return Crnt1
  
 def Newton_DD(Drift_Diffusion,phin,dx_list,Vg,VD):
     dx = 1.;
@@ -450,12 +455,12 @@ def Newton_DD(Drift_Diffusion,phin,dx_list,Vg,VD):
 def Current(Drift_Diffusion):
     I = 0
     for yi in range(My1,My2):
-        I += const.e*Dn*Drift_Diffusion.Jn(yi*Nx+Nx-1,yi*Nx+Nx-2); # Drain Current
-        #I += const.e*Dn*Drift_Diffusion.Jn(yi*Nx+1,yi*Nx); # Source Current
+        I += const.e*Dn*Drift_Diffusion.Jn(yi*Nx+Nx-1,yi*Nx+Nx-2)/h; # Drain Current
+        #I += const.e*Dn*Drift_Diffusion.Jn(yi*Nx+1,yi*Nx)/h; # Source Current
 
-    return I*h
+    return np.abs(I)*1e-12
 
-Vg = 1.1; VD = 1.1; dx_list = []
+Vg = 0.6; VD = 0.6; dx_list = []
 
 #Prob = Poisson_eq_2D(Vg)
 #phi = spsolve(csr_matrix(Prob.H.csr_form(),shape=(N,N)),Prob.b) ### initial vector 1
@@ -499,25 +504,19 @@ ax2.set_ylim(bottom=0)
 fig.colorbar(surf1,ax=ax1)
 fig.tight_layout()
 plt.show()
-
-Crnt1,Crnt2 = Prob.make_Current()
-
-fig = plt.figure(figsize=(10,10))
-plt.quiver(X,Y,Crnt1,Crnt2,angles='xy',pivot='middle',linewidths=np.linspace(0,1.,X.size))
-
-plt.show()
-
 '''
 fig = plt.figure(figsize=(10,10))
 
 VD_list = np.linspace(0,1.1,11)
-Vg_list = np.linspace(0,1.1,3)
+Vg_list = np.linspace(0,1.1,11)
 I_list = []
 for Vg in Vg_list:
     for VD in VD_list:
+    	print(Vg,VD)
         phin = Newton_DD(Prob,phin,dx_list,Vg,VD)
         I = Current(Prob)
         I_list.append(I)
+    Prob.update(np.zeros(2*N),np.ones(2*N))
 
     plt.plot(VD_list,I_list,'-',c=plt.cm.coolwarm(Vg/1.1),label='$V_G=$'+str(format(Vg,'1.1f'))+'V')
     I_list = []

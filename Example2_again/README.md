@@ -1,8 +1,8 @@
 ****************************************
 
-* IT IS A REVISED VERSION OF Example2. *
+* IT IS A REVISED VERSION OF Example2. 
 
-* PLEASE USE THIS VERSION.             *
+* PLEASE USE THIS VERSION.             
 
 ****************************************
 
